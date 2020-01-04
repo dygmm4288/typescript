@@ -1,62 +1,68 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const CryptoJS = require("crypto-js");
-class Block {
-    constructor(index, hash, previousHash, data, timeStamp) {
-        this.index = index;
-        this.hash = hash;
-        this.previousHash = previousHash;
-        this.data = data;
-        this.timeStamp = timeStamp;
+const addZero = (value) => {
+    if (typeof value === "string") {
+        return "0" + value;
     }
-}
-//생성하지 않아도 사용 가능한 메서드 static
-Block.calculateBlockHash = (index, previousHash, timeStamp, data) => CryptoJS.SHA256(index + previousHash + timeStamp + data).toString();
-Block.validateStructure = (Block) => typeof Block.index === "number" &&
-    typeof Block.hash === "string" &&
-    typeof Block.previousHash === "string" &&
-    typeof Block.timeStamp === "number" &&
-    typeof Block.data === "string";
-//static 덕분에 calculateBlockHash 가능
-const genesisBlock = new Block(0, "202002", "", "helo", 123456);
-let blockChain = [genesisBlock];
-const getBLockChain = () => blockChain;
-const getLatestBlock = () => blockChain[blockChain.length - 1];
-const getNewTimeStamp = () => Math.round(new Date().getTime() / 1000);
-const getHashForBlock = (aBlock) => Block.calculateBlockHash(aBlock.index, aBlock.previousHash, aBlock.timeStamp, aBlock.data);
-const createNewBlock = (data) => {
-    const previousBlock = getLatestBlock();
-    const newIndex = previousBlock.index + 1;
-    const newTimeStamp = getNewTimeStamp();
-    const newHash = Block.calculateBlockHash(newIndex, previousBlock.hash, newTimeStamp, data);
-    const newBlock = new Block(newIndex, newHash, previousBlock.hash, data, newTimeStamp);
-    addBlock(newBlock);
-    return newBlock;
-};
-const isBlockVaild = (candidateBlock, previousBlock) => {
-    if (!Block.validateStructure(candidateBlock)) {
-        return false;
-    }
-    else if (previousBlock.index + 1 !== candidateBlock.index) {
-        return false;
-    }
-    else if (previousBlock.hash !== candidateBlock.previousHash) {
-        return false;
-    }
-    else if (getHashForBlock(candidateBlock) !== candidateBlock.hash) {
-        return false;
-    }
-    else {
-        return true;
+    else if (typeof value === "number") {
+        return addZero(value.toString());
     }
 };
-const addBlock = (candidateBlock) => {
-    if (isBlockVaild(candidateBlock, getLatestBlock())) {
-        blockChain.push(candidateBlock);
+Date.prototype.format = function (f, isNumber) {
+    const date = this;
+    const result = f.replace(/(yyyy|MM|DD|dd|hh|mm|ss)/gi, (replaced) => {
+        switch (replaced) {
+            case "yyyy":
+                return date.getFullYear().toString();
+            case "MM":
+                return (date.getMonth() + 1).toString();
+            case "DD":
+                return date.getDate().toString();
+            case "dd":
+                return date.getDay().toString();
+            case "hh":
+                const h = date.getHours();
+                return h < 10 ? addZero(h) : h.toString();
+            case "mm":
+                const m = date.getMinutes();
+                return m < 10 ? addZero(m) : m.toString();
+            case "ss":
+                const s = date.getSeconds();
+                return s < 10 ? addZero(s) : s.toString();
+        }
+    });
+    if (isNumber) {
+        return parseInt(result);
     }
+    return result;
 };
-createNewBlock("second block");
-createNewBlock("third block");
-createNewBlock("fourth block");
-console.log(blockChain);
+const initArray = (size, length) => {
+    const result = [];
+    for (let i = 0; i < length; i++) {
+        result[i] = Array(size).fill(0);
+    }
+    return result;
+};
+const fillThisMonth = (table, startDay, endDate, value, week) => {
+    if (value > endDate) {
+        return table;
+    }
+    table[week][startDay++] = value++;
+    if (startDay === 7) {
+        startDay = 0;
+        week += 1;
+    }
+    return fillThisMonth(table, startDay, endDate, value, week);
+};
+const buildCalendar = (today) => {
+    const tableCalendar = initArray(7, 6);
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    const thisDate = new Date(todayYear, todayMonth, 1);
+    const lastDate = new Date(todayYear, todayMonth + 1, 0);
+    const prevDate = new Date(todayYear, todayMonth, 0);
+    console.log(thisDate.getDay(), lastDate.getDate());
+    console.log(fillThisMonth(tableCalendar, thisDate.getDay(), lastDate.getDate(), 1, 0));
+    return tableCalendar;
+};
+const date = new Date();
+buildCalendar(date);
 //# sourceMappingURL=index.js.map
