@@ -1,46 +1,20 @@
-import { buildCalendar } from "./Calendar";
-
-//제너릭 함수
-function getFirstElem<T>(arr: T[]): T {
-	if (!Array.isArray(arr)) {
-		throw new Error("getFirstElemOrNull: Arguments is not array!");
+class _ {
+	constructor() {
+		console.log("consturctor class _");
 	}
-	if (arr.length === 0) {
-		throw new Error("getFristElemOrNull: Arguments is an empty array!");
-	}
-	return arr[0] ? arr[0] : null;
+	static filter = <T>(list: T[], predi: (args: T) => boolean) => {
+		const result: T[] = [];
+		for (let i = 0, len = list.length; i < len; i++) {
+			if (predi(list[i])) result.push(list[i]);
+		}
+		return result;
+	};
 }
-const languages: string[] = ["Typescript", "JavaScript", "React"];
-const language = getFirstElem<string>(languages);
 
-const numbers: number[] = [1, 3, 5, 7, 9];
-const number = getFirstElem<number>(numbers);
-
-const trueOrFalse: boolean[] = [true, false, true, false];
-const trueValue = getFirstElem<boolean>(trueOrFalse);
-
-type Person = {
-	name: string;
-	age: number;
-};
-const persons: Person[] = [
-	{ name: "jinho", age: 24 },
+const OBJPerson: Person[] = [
+	{ name: "lee", age: 24 },
 	{ name: "gaon", age: 24 },
-	{ name: "hunseop", age: 25 }
+	{ name: "song", age: 25 }
 ];
-const person = getFirstElem<Person>(persons);
-
-type TuplePerson = [string, number, string];
-const tuplePersons: TuplePerson[] = [
-	["lee", 24, "male"],
-	["lee", 24, "female"],
-	["song", 25, "male"]
-];
-const tuplePerson = getFirstElem<TuplePerson>(tuplePersons);
-
-
-console.log(tuplePerson);
-console.log(person);
-console.log(trueValue);
-console.log(number);
-console.log(language);
+const name_lee = _.filter(OBJPerson, (list: Person) => list.name === "lee");
+console.log(name_lee);
